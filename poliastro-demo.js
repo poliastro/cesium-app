@@ -1,5 +1,4 @@
 var czml = []; // czml data
-
 // load the czml data
 var czmlDataSource = new Cesium.CzmlDataSource();
 czmlDataSource.load(czml);
@@ -9,7 +8,7 @@ var customPropertyObject = czmlDataSource.entities.getById('custom_properties');
 var customAttractor = customPropertyObject.properties.custom_attractor.getValue();
 
 // Initialize the ellipsoid and its repsective imagery
-var ellipsoid, imagery;
+var ellipsoid, imagery, Globe;
 
 // If a custom attractor is defined, load the data from the custom packet
 if(customAttractor){
@@ -22,13 +21,20 @@ if(customAttractor){
         ellipsoid: ellipsoid,
         url: Cesium.buildModuleUrl(_imagery)
     });
+    
+    Globe = new Cesium.Globe(ellipsoid);
+}
+else {
+    Globe = new Cesium.Globe();
 }
 
 var viewer = new Cesium.Viewer('cesiumContainer', {
     // Set the ellipsoid
-    mapProjection: new Cesium.GeographicProjection(ellipsoid),
+    globe: new Cesium.Globe(ellipsoid),
     imageryProvider: imagery,
+    baseLayerPicker: !customAttractor,
 });
+
 
 var scene = viewer.scene;
 var handler;
