@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script src="https://cesiumjs.org/releases/1.57/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesiumjs.org/releases/1.57/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+</head>
+<body>
+  <div id="cesiumContainer" style="width: 700px; height:400px"></div>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"> </script>
+  <script>
+	var czml;
+    Cesium.Ion.defaultAccessToken = ''; //your access token
+	$.ajax({
+    dataType: "json",
+    url: "czml.json",
+    mimeType: "application/json",
+    success: function(result){
+   		czml = result;
+    }
+});
+  </script>
+  <script src="main.js"></script>
+</body>
+</html>
