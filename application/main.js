@@ -42,6 +42,8 @@ var viewer = new Cesium.Viewer('cesiumContainer', {
 var scene = viewer.scene;
 var handler;
 
+scene.postUpdate.addEventListener(icrf);
+
 // To have an inertial (ICRF) view
 function icrf(scene, time) {
     var icrfToFixed = Cesium.Transforms.computeIcrfToFixedMatrix(time);
