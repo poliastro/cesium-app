@@ -1,26 +1,55 @@
-var request = new XMLHttpRequest(); //Temporary hack, handling local files in javascript is hard :/
-request.open("GET","czml.json", false);
-request.send(null);
+// TODO: This needs a major refactor
+// Get rid of the global variables and introduce better error handling
 
-// load the czml data
-var czmlDataSource = new Cesium.CzmlDataSource();
-czmlDataSource.load(czml);
-
-// Set attractor data from custom properties packet
-var customPropertyObject = czmlDataSource.entities.getById('custom_properties');
-var customAttractor = customPropertyObject.properties.custom_attractor.getValue();
-
-// Initialize the ellipsoid and its repsective imagery
+var init_ = false;
+var czml = [];
+var czmlDataSource;
+var customPropertyObject, customAttractor;
 var ellipsoid, imagery, Globe;
+
+// Handle file upload
+var inputElement = document.querySelector("#file-input");
+inputElement.addEventListener("change", handleFiles, false);
+
+function handleFiles() {
+    // Reset view
+    viewer.dataSources.removeAll();
+
+    // Read file
+    var reader = new FileReader();
+    reader.onload = function(event) {
+        czml = JSON.parse(event.target.result);
+        console.log(czml);
+        
+      	// Add czmk
+        czmlDataSource = new Cesium.CzmlDataSource();
+        czmlDataSource.load(czml);
+
+        customPropertyObject = czmlDataSource.entities.getById('custom_properties');
+        customAttractor = customPropertyObject.properties.custom_attractor.getValue();
+        if (customAttractor) {
+          	// Parse custom properties
+            setCustomProperties();
+          	// Parse orbital data
+            viewer.dataSources.add(czmlDataSource);
+        }
+    };
+
+    reader.onerror = function(event) {
+        console.log(event.target.error);
+    };
+
+    reader.readAsText(this.files[0]);
+}
 
 // Camera flags
 var cameraflags = {
-    mvW : false,
-    mvA : false,
-    mvS : false,
-    mvD : false,
-    mvE : false,
-    mvQ : false
+    mvW: false,
+    mvA: false,
+    mvS: false,
+    mvD: false,
+    mvE: false,
+    mvQ: false
 };
 
 function getFlagForKeyCode(keyCode) {
@@ -48,32 +77,13 @@ document.addEventListener('keydown', function(e) {
         cameraflags[flagName] = true;
     }
 }, false);
- 
+
 document.addEventListener('keyup', function(e) {
     var flagName = getFlagForKeyCode(e.keyCode);
     if (typeof flagName !== 'undefined') {
         cameraflags[flagName] = false;
     }
 }, false);
- 
-
-// If a custom attractor is defined, load the data from the custom packet
-if(customAttractor){
-    var _ellipsoid = customPropertyObject.properties.ellipsoid.getValue();
-    var _imagery = customPropertyObject.properties.map_url.getValue();
-    
-    ellipsoid = new Cesium.Ellipsoid(_ellipsoid[0], _ellipsoid[1], _ellipsoid[2]);
-
-    imagery = new Cesium.SingleTileImageryProvider({
-        ellipsoid: ellipsoid,
-        url: Cesium.buildModuleUrl(_imagery)
-    });
-    
-    Globe = new Cesium.Globe(ellipsoid);
-}
-else {
-    Globe = new Cesium.Globe();
-}
 
 var viewer = new Cesium.Viewer('cesiumContainer', {
     // Set the ellipsoid
@@ -82,6 +92,28 @@ var viewer = new Cesium.Viewer('cesiumContainer', {
     baseLayerPicker: !customAttractor,
 });
 
+// If a custom attractor is defined, load the data from the custom packet
+function setCustomProperties() {
+    viewer.destroy();
+
+    var _ellipsoid = customPropertyObject.properties.ellipsoid.getValue();
+    var _imagery = customPropertyObject.properties.map_url.getValue();
+    console.log(customAttractor);
+    ellipsoid = new Cesium.Ellipsoid(_ellipsoid[0], _ellipsoid[1], _ellipsoid[2]);
+    imagery = new Cesium.SingleTileImageryProvider({
+        ellipsoid: ellipsoid,
+        url: Cesium.buildModuleUrl(_imagery)
+    });
+    Globe = new Cesium.Globe(ellipsoid);
+
+    viewer = new Cesium.Viewer('cesiumContainer', {
+        // Set the ellipsoid
+        globe: new Cesium.Globe(ellipsoid),
+        imageryProvider: imagery,
+        baseLayerPicker: !customAttractor,
+    });
+
+}
 
 var scene = viewer.scene;
 var handler;
@@ -97,39 +129,35 @@ function icrf(scene, time) {
     }
 }
 
- 
+
 viewer.camera.flyHome(0);
 
-viewer.dataSources.add(czmlDataSource);
 
 viewer.clock.onTick.addEventListener(function(clock) {
     var camera = viewer.camera;
 
     // TODO: Better way to change speed
     // Maybe modify the speed with the slider?
-    
+
     var cameraHeight = scene.globe.ellipsoid.cartesianToCartographic(camera.position).height;
     var cameraMoveSpeed = 0.01;
-    
+
     if (cameraflags.mvE && !cameraflags.mvQ) {
         camera.moveUp(cameraMoveSpeed * cameraHeight);
-    }
-    else if (cameraflags.mvQ) {
+    } else if (cameraflags.mvQ) {
         camera.moveDown(cameraMoveSpeed * cameraHeight);
     }
-    
+
     if (cameraflags.mvW && !cameraflags.mvS) {
         camera.moveForward(cameraMoveSpeed * cameraHeight);
-    }
-    else if (cameraflags.mvS) {
+    } else if (cameraflags.mvS) {
         camera.moveBackward(cameraMoveSpeed * cameraHeight);
     }
-    
+
     if (cameraflags.mvD && !cameraflags.mvA) {
         camera.moveRight(cameraMoveSpeed * cameraHeight);
-    }
-    else if (cameraflags.mvA) {
+    } else if (cameraflags.mvA) {
         camera.moveLeft(cameraMoveSpeed * cameraHeight);
     }
-    
+
 });
