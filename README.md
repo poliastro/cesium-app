@@ -60,9 +60,10 @@ ___
 
 5. Paste into the ``HTML body & CSS`` tab
 
-___
 
 ![html img](https://github.com/poliastro/cesium-app/blob/master/assets/ex_2.png)
+
+___
 
 6. Run the application
 
