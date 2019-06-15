@@ -19,18 +19,17 @@ function handleFiles() {
     var reader = new FileReader();
     reader.onload = function(event) {
         czml = JSON.parse(event.target.result);
-        console.log(czml);
         
-      	// Add czmk
+        // Add czml
         czmlDataSource = new Cesium.CzmlDataSource();
         czmlDataSource.load(czml);
 
         customPropertyObject = czmlDataSource.entities.getById('custom_properties');
         customAttractor = customPropertyObject.properties.custom_attractor.getValue();
         if (customAttractor) {
-          	// Parse custom properties
+            // Parse custom properties
             setCustomProperties();
-          	// Parse orbital data
+            // Parse orbital data
             viewer.dataSources.add(czmlDataSource);
         }
     };
@@ -98,12 +97,14 @@ function setCustomProperties() {
 
     var _ellipsoid = customPropertyObject.properties.ellipsoid.getValue();
     var _imagery = customPropertyObject.properties.map_url.getValue();
-    console.log(customAttractor);
     ellipsoid = new Cesium.Ellipsoid(_ellipsoid[0], _ellipsoid[1], _ellipsoid[2]);
+    
     imagery = new Cesium.SingleTileImageryProvider({
         ellipsoid: ellipsoid,
         url: Cesium.buildModuleUrl(_imagery)
     });
+
+
     Globe = new Cesium.Globe(ellipsoid);
 
     viewer = new Cesium.Viewer('cesiumContainer', {
