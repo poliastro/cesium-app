@@ -97,6 +97,12 @@ function setCustomProperties() {
 
     var _ellipsoid = customPropertyObject.properties.ellipsoid.getValue();
     var _imagery = customPropertyObject.properties.map_url.getValue();
+	if (customPropertyObject.properties.scene3D.getValue()) {
+		var _scene = Cesium.SceneMode.SCENE3D
+	} else {
+		var _scene = Cesium.SceneMode.SCENE2D
+	}
+	
     ellipsoid = new Cesium.Ellipsoid(_ellipsoid[0], _ellipsoid[1], _ellipsoid[2]);
     
     imagery = new Cesium.SingleTileImageryProvider({
@@ -112,6 +118,7 @@ function setCustomProperties() {
         globe: new Cesium.Globe(ellipsoid),
         imageryProvider: imagery,
         baseLayerPicker: !customAttractor,
+		sceneMode : _scene
     });
 
 }
@@ -132,7 +139,7 @@ function icrf(scene, time) {
 
 
 viewer.camera.flyHome(0);
-
+viewer.scene.postUpdate.addEventListener(icrf);
 
 viewer.clock.onTick.addEventListener(function(clock) {
     var camera = viewer.camera;
