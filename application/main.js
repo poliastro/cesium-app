@@ -1,6 +1,5 @@
 // TODO: This needs a major refactor
 // Get rid of the global variables and introduce better error handling
-
 var init_ = false;
 var czml = [];
 var czmlDataSource;
@@ -94,13 +93,12 @@ var viewer = new Cesium.Viewer('cesiumContainer', {
 // If a custom attractor is defined, load the data from the custom packet
 function setCustomProperties() {
     viewer.destroy();
-
+    
+    var _scene = Cesium.SceneMode.SCENE3D;
     var _ellipsoid = customPropertyObject.properties.ellipsoid.getValue();
     var _imagery = customPropertyObject.properties.map_url.getValue();
-	if (customPropertyObject.properties.scene3D.getValue()) {
-		var _scene = Cesium.SceneMode.SCENE3D
-	} else {
-		var _scene = Cesium.SceneMode.SCENE2D
+	if (!customPropertyObject.properties.scene3D.getValue()) {
+		_scene = Cesium.SceneMode.SCENE2D;
 	}
 	
     ellipsoid = new Cesium.Ellipsoid(_ellipsoid[0], _ellipsoid[1], _ellipsoid[2]);
