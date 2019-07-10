@@ -4,6 +4,7 @@
 var init_ = false;
 var czml = [];
 var czmlDataSource;
+var scene, handler;
 var customPropertyObject, customAttractor;
 var ellipsoid, imagery, Globe;
 
@@ -84,6 +85,34 @@ document.addEventListener('keyup', function(e) {
     }
 }, false);
 
+function cameraControl(clock) {
+    var camera = viewer.camera;
+
+    // TODO: Better way to change speed
+    // Maybe modify the speed with the slider?
+
+    var cameraHeight = scene.globe.ellipsoid.cartesianToCartographic(camera.position).height;
+    var cameraMoveSpeed = 0.01;
+
+    if (cameraflags.mvE && !cameraflags.mvQ) {
+        camera.moveUp(cameraMoveSpeed * cameraHeight);
+    } else if (cameraflags.mvQ) {
+        camera.moveDown(cameraMoveSpeed * cameraHeight);
+    }
+
+    if (cameraflags.mvW && !cameraflags.mvS) {
+        camera.moveForward(cameraMoveSpeed * cameraHeight);
+    } else if (cameraflags.mvS) {
+        camera.moveBackward(cameraMoveSpeed * cameraHeight);
+    }
+
+    if (cameraflags.mvD && !cameraflags.mvA) {
+        camera.moveRight(cameraMoveSpeed * cameraHeight);
+    } else if (cameraflags.mvA) {
+        camera.moveLeft(cameraMoveSpeed * cameraHeight);
+    }
+}
+
 var viewer = new Cesium.Viewer('cesiumContainer', {
     // Set the ellipsoid
     globe: new Cesium.Globe(ellipsoid),
@@ -119,11 +148,13 @@ function setCustomProperties() {
         baseLayerPicker: !customAttractor,
 		sceneMode : _scene
     });
-
+    scene = viewer.scene;
+	
+	viewer.scene.postUpdate.addEventListener(icrf);
+	viewer.scene.postUpdate.addEventListener(cameraControl);
 }
 
-var scene = viewer.scene;
-var handler;
+scene = viewer.scene;
 
 // To have an inertial (ICRF) view
 function icrf(scene, time) {
@@ -138,32 +169,3 @@ function icrf(scene, time) {
 
 
 viewer.camera.flyHome(0);
-viewer.scene.postUpdate.addEventListener(icrf);
-
-viewer.clock.onTick.addEventListener(function(clock) {
-    var camera = viewer.camera;
-
-    // TODO: Better way to change speed
-    // Maybe modify the speed with the slider?
-
-    var cameraHeight = scene.globe.ellipsoid.cartesianToCartographic(camera.position).height;
-    var cameraMoveSpeed = 0.01;
-
-    if (cameraflags.mvE && !cameraflags.mvQ) {
-        camera.moveUp(cameraMoveSpeed * cameraHeight);
-    } else if (cameraflags.mvQ) {
-        camera.moveDown(cameraMoveSpeed * cameraHeight);
-    }
-
-    if (cameraflags.mvW && !cameraflags.mvS) {
-        camera.moveForward(cameraMoveSpeed * cameraHeight);
-    } else if (cameraflags.mvS) {
-        camera.moveBackward(cameraMoveSpeed * cameraHeight);
-    }
-
-    if (cameraflags.mvD && !cameraflags.mvA) {
-        camera.moveRight(cameraMoveSpeed * cameraHeight);
-    } else if (cameraflags.mvA) {
-        camera.moveLeft(cameraMoveSpeed * cameraHeight);
-    }
-});
