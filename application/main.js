@@ -150,8 +150,10 @@ function setCustomProperties() {
     });
     scene = viewer.scene;
 	
-	viewer.scene.postUpdate.addEventListener(icrf);
-	viewer.scene.postUpdate.addEventListener(cameraControl);
+	if (customPropertyObject.properties.scene3D.getValue()) {
+		viewer.scene.postUpdate.addEventListener(icrf);
+		viewer.scene.postUpdate.addEventListener(cameraControl);
+	}
 }
 
 scene = viewer.scene;
