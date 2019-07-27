@@ -125,14 +125,26 @@ function setCustomProperties() {
     viewer.destroy();
     
     var _scene = Cesium.SceneMode.SCENE3D;
-    var _ellipsoid = customPropertyObject.properties.ellipsoid.getValue();
-    var _imagery = customPropertyObject.properties.map_url.getValue();
+    
+	var _ellipsoid = customPropertyObject.properties.ellipsoid.getValue();
+    
+	var _imagery = customPropertyObject.properties.map_url.getValue();
+	
 	if (!customPropertyObject.properties.scene3D.getValue()) {
 		_scene = Cesium.SceneMode.SCENE2D;
 	}
 	
     ellipsoid = new Cesium.Ellipsoid(_ellipsoid[0], _ellipsoid[1], _ellipsoid[2]);
     
+	var _tiling_scheme = new Cesium.WebMercatorTilingScheme({
+		ellipsoid: ellipsoid
+	});
+	
+	var terrainProvider = new Cesium.EllipsoidTerrainProvider({
+		tilingScheme: _tiling_scheme,
+		ellipsoid: ellipsoid
+	});
+	
     imagery = new Cesium.SingleTileImageryProvider({
         ellipsoid: ellipsoid,
         url: Cesium.buildModuleUrl(_imagery)
@@ -145,9 +157,10 @@ function setCustomProperties() {
         // Set the ellipsoid
         globe: new Cesium.Globe(ellipsoid),
         imageryProvider: imagery,
-        baseLayerPicker: !customAttractor,
-		sceneMode : _scene
+		terrainProvider: terrainProvider,
+		sceneMode: _scene,
     });
+
     scene = viewer.scene;
 	
 	if (customPropertyObject.properties.scene3D.getValue()) {
