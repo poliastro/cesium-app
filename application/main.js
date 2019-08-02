@@ -12,6 +12,17 @@ var ellipsoid, imagery, Globe;
 var inputElement = document.querySelector("#file-input");
 inputElement.addEventListener("change", handleFiles, false);
 
+// Handle gif creation
+document.getElementById("screenshot").addEventListener("click", handle_screenshot);
+
+function handle_screenshot() {
+  viewer.render();
+  var canvas = viewer.canvas;
+  var img_data = canvas.toDataURL();
+  var url = img_data.replace(/^data:image\/[^;]+/, 'data:application/octet-stream');
+  window.open(url);
+}
+
 function handleFiles() {
     // Reset view
     viewer.dataSources.removeAll();
