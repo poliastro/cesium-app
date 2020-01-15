@@ -1,6 +1,6 @@
 # Poliastro with Cesium
 
-An application to render poliastro orbital data with Cesium.
+An application to render poliastro orbital data with Cesium. It uses NASA's Blue Marble imagery.
 
 ## Running the application
 
